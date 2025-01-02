@@ -229,7 +229,7 @@
                         <th>Email</th>
                         <th>Address</th>
                         <th>Phone</th>
-                        
+
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -256,8 +256,8 @@
                     <input type="text" id="task-title" placeholder="Enter task title">
                 </div>
                 <div class="form-group">
-                    <label for="task-assigned-to">Assigned To:</label>
-                    <select id="task-assigned-to" style="min-width: 100px;"></select>
+                    <label for="task-assigned_to">Assigned To:</label>
+                    <select id="task-assigned_to" style="min-width: 100px;"></select>
                 </div>
                 <button type="button" class="btn" onclick="createRecord('taskboard')">Add Task</button>
             </form>
@@ -420,6 +420,7 @@
                             <td>${record.id}</td>
                             <td>${record.title}</td>
                             <td>${record.status === 'completed' ? 'Đã hoàn thành' : 'Chưa hoàn thành'}</td>
+                            <td>${record.description}</td>
                             <td>${record.assigned_to}</td>
                             <td>
                                 <button class="action-btn" onclick="editRecord('${module}', ${record.id})">Edit</button>
@@ -441,17 +442,17 @@
                 console.error("Error loading records:", error);
             }
         }
-
         async function createRecord(module) {
             const form = document.getElementById(`${module}-form`);
-            const inputs = form.querySelectorAll('input');  // Bao gồm cả input và select elements
+            const inputs = form.querySelectorAll('input, select'); // Include input and select elements
             const data = {};
 
+            // Collect form data
             inputs.forEach(input => {
                 data[input.id.replace(`${module}-`, '')] = input.value;
             });
 
-            // Lấy token từ localStorage
+            // Get token from localStorage
             const token = localStorage.getItem('accessToken');
             if (!token) {
                 alert('You are not logged in');
@@ -463,32 +464,37 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,  // Bao gồm token trong header Authorization
+                        'Authorization': `Bearer ${token}`, // Include token in the Authorization header
                     },
                     body: JSON.stringify(data),
                 });
-                console.log(response);
 
                 if (response.ok) {
-                    loadRecords(module);  // Tải lại danh sách sau khi thêm
-                    form.reset();  // Reset form sau khi submit
+                    console.log("Record created successfully");
+                    console.log(response);
+
+                    loadRecords(module); // Reload the records after adding
+                    form.reset(); // Reset the form after submitting
                 } else {
                     const errorData = await response.json();
-                    alert(`Error: ${errorData.detail || 'Failed to create record'}`);
+                    if (module === 'taskboard') {
+                        if (errorData.detail && errorData.detail.includes('assigned_to')) {
+                            alert('Please select a valid employee for task assignment.');
+                        } else {
+                            alert(`Error: ${errorData.detail || 'Failed to create task.'}`);
+                        }
+                    } else {
+                        alert(`Error: ${errorData.detail || 'Failed to create record.'}`);
+                    }
                     console.error("Error creating record:", errorData);
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 console.error("Error:", error);
                 alert('An error occurred while creating the record.');
             }
         }
 
 
-
-        async function editRecord(module, id) {
-            alert(`Edit functionality for ${module} ID ${id} is not yet implemented.`);
-        }
 
         async function deleteRecord(module, id) {
             try {
@@ -503,7 +509,7 @@
             }
         }
         async function loadEmployees() {
-            const employeeSelect = document.getElementById('task-assigned-to');
+            const employeeSelect = document.getElementById('task-assigned_to');
             employeeSelect.innerHTML = '';  // Clear existing options
 
             try {
@@ -520,6 +526,67 @@
                 console.error("Error loading employees:", error);
             }
         }
+
+        function editRecord(module, id) {
+            // Locate the row corresponding to the record
+            const table = document.getElementById(`${module}-table`);
+            const row = Array.from(table.querySelectorAll('tr')).find(
+                tr => tr.querySelector('td')?.textContent == id
+            );
+
+            if (!row) {
+                alert("Record not found");
+                return;
+            }
+
+            // Get the form for the module
+            const form = document.getElementById(`${module}-form`);
+
+            // Populate form fields with row data
+            const fields = form.querySelectorAll("input, select");
+            fields.forEach(field => {
+                const fieldName = field.id.replace(`${module}-`, "");
+                const cell = Array.from(row.children).find(td => td.dataset.field === fieldName);
+                if (cell) {
+                    field.value = cell.textContent.trim();
+                }
+            });
+
+            // Update the button action
+            const submitButton = form.querySelector("button");
+            submitButton.textContent = "Save Changes";
+            submitButton.onclick = () => saveChanges(module, id);
+        }
+
+
+        function saveChanges(module, id) {
+            // Get the form and table
+            const form = document.getElementById(`${module}-form`);
+            const table = document.getElementById(`${module}-table`);
+            const row = table.querySelector(`tr[data-id='${id}']`);
+
+            if (!row) {
+                alert("Record not found");
+                return;
+            }
+
+            // Update the row with new data
+            const fields = form.querySelectorAll("input, select");
+            fields.forEach(field => {
+                const fieldName = field.id.replace(`${module}-`, "");
+                const cell = row.querySelector(`td[data-field='${fieldName}']`);
+                if (cell) {
+                    cell.textContent = field.value;
+                }
+            });
+
+            // Reset the form and button
+            form.reset();
+            const submitButton = form.querySelector("button");
+            submitButton.textContent = `Add ${module.charAt(0).toUpperCase() + module.slice(1)}`;
+            submitButton.onclick = () => createRecord(module);
+        }
+
     </script>
 </body>
 
