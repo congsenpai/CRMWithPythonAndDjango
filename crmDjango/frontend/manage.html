@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Management Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background-color: #333;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 14px 20px;
+            display: block;
+        }
+
+        .navbar a:hover {
+            background-color: #575757;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            margin-right: 5px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background-color: #218838;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <a href="#" onclick="showModule('customer')">Customer</a>
+        <a href="#" onclick="showModule('product')">Product</a>
+        <a href="#" onclick="showModule('employee')">Employee</a>
+        <a href="#" onclick="showModule('taskboard')">Taskboard</a>
+        <button onclick="logoutUser()">Logout</button>
+
+    </div>
+
+    <div class="container">
+        <div id="customer" class="module" style="display: none;">
+            <h2>Manage Customers</h2>
+            <form id="customer-form">
+                <div class="form-group">
+                    <label for="customer-name">Name:</label>
+                    <input type="text" id="customer-name" placeholder="Enter name">
+                </div>
+                <div class="form-group">
+                    <label for="customer-email">Email:</label>
+                    <input type="email" id="customer-email" placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                    <label for="customer-phone">Phone:</label>
+                    <input type="number" id="customer-phone" placeholder="Enter phone number">
+                </div>
+                <div class="form-group">
+                    <label for="customer-address">Address:</label>
+                    <input type="text" id="customer-address" placeholder="Enter Address">
+                </div>
+                <div class="form-group">
+                    <label for="customer-email">Age:</label>
+                    <input type="number" id="customer-age" placeholder="Enter age">
+                </div>
+                <button type="button" class="btn" onclick="createRecord('customer')">Add Customer</button>
+            </form>
+            <table id="customer-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                        <th>Age</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="product" class="module" style="display: none;">
+            <h2>Manage Products</h2>
+            <form id="product-form">
+                <div class="form-group">
+                    <label for="product-name">Name:</label>
+                    <input type="text" id="product-name" placeholder="Enter product name">
+                </div>
+                <div class="form-group">
+                    <label for="product-price">Price:</label>
+                    <input type="number" id="product-price" placeholder="Enter price">
+                </div>
+                <div class="form-group">
+                    <label for="product-price">Stock:</label>
+                    <input type="number" id="product-stock" placeholder="Enter stock">
+                </div>
+                <div class="form-group">
+                    <label for="product-description">Description:</label>
+                    <input type="text" id="product-description" placeholder="Enter product Description">
+                </div>
+                <button type="button" class="btn" onclick="createRecord('product')">Add Product</button>
+            </form>
+            <table id="product-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="employee" class="module" style="display: none;">
+            <h2>Manage Employees</h2>
+            <form id="employee-form">
+                <div class="form-group">
+                    <label for="employee-name">Name:</label>
+                    <input type="text" id="employee-name" placeholder="Enter employee name">
+                </div>
+                <div class="form-group">
+                    <label for="employee-position">Position:</label>
+                    <input type="text" id="employee-position" placeholder="Enter position">
+                </div>
+                <div class="form-group">
+                    <label for="employee-email">Email:</label>
+                    <input type="email" id="employee-email" placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                    <label for="employee-phone">Phone:</label>
+                    <input type="number" id="employee-phone" placeholder="Enter phone number">
+                </div>
+                <div class="form-group">
+                    <label for="employee-address">Address:</label>
+                    <input type="text" id="employee-address" placeholder="Enter address">
+                </div>
+                <button type="button" class="btn" onclick="createRecord('employee')">Add Employee</button>
+            </form>
+            <table id="employee-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="taskboard" class="module" style="display: none;">
+            <h2>Manage Taskboard</h2>
+            <form id="taskboard-form">
+                <div class="form-group">
+                    <label for="task-title">Title:</label>
+                    <input type="text" id="task-title" placeholder="Enter task title">
+                </div>
+                <div class="form-group">
+                    <label for="task-status">Status:</label>
+                    <select id="task-status">
+                        <option value="not_completed">Chưa hoàn thành</option>
+                        <option value="completed">Đã hoàn thành</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-title">Description:</label>
+                    <input type="text" id="task-title" placeholder="Enter task title">
+                </div>
+                <div class="form-group">
+                    <label for="task-assigned-to">Assigned To:</label>
+                    <select id="task-assigned-to" style="min-width: 100px;"></select>
+                </div>
+                <button type="button" class="btn" onclick="createRecord('taskboard')">Add Task</button>
+            </form>
+
+            <table id="taskboard-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Description</th>
+                        <th>Assigned To</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+
+    </div>
+    <script>
+
+        function logoutUser() {
+            localStorage.removeItem('accessToken');  // Remove the token from localStorage
+            window.location.href = '/';  // Reload the page
+        }
+
+        const apiBaseUrl = "http://127.0.0.1:8000/api";
+
+        // Fetch function with authentication
+        async function fetchWithAuth(endpoint, options = {}) {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                alert('No token found. Please log in first.');
+                window.location.href = '/login';  // Redirect to login page
+            }
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...options.headers,
+            };
+
+            const response = await fetch(`${apiBaseUrl}/${endpoint}`, {
+                ...options,
+                headers,
+            });
+
+            if (response.status === 401) {
+                alert('Session expired. Please log in again.');
+                localStorage.removeItem('accessToken');
+                window.location.href = '/';  // Redirect to login page
+            }
+
+            return response;
+        }
+
+        async function fetchCustomers() {
+            const message = document.getElementById('customers-message');
+            message.textContent = '';
+
+            try {
+                const response = await fetchWithAuth('customer/', { method: 'GET' });
+                const data = await response.json();
+
+                console.log('Response Status:', response.status);
+                console.log('Response Data:', data);
+
+                if (response.ok) {
+                    console.log('Customers:', data);  // Render the data in your UI
+                    message.textContent = 'Fetched customers successfully!';
+                    message.style.color = 'green';
+                } else {
+                    message.textContent = data.detail || 'Failed to fetch customers!';
+                    message.style.color = 'red';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                message.textContent = 'An error occurred.';
+                message.style.color = 'red';
+            }
+        }
+
+        function showModule(module) {
+            document.querySelectorAll('.module').forEach(mod => mod.style.display = 'none');
+            document.getElementById(module).style.display = 'block';
+
+            if (module === 'taskboard') {
+                loadEmployees(); // Load employees when showing the taskboard module
+            }
+
+            loadRecords(module); // Load records for the selected module
+        }
+
+
+
+        async function loadRecords(module) {
+            const tableBody = document.getElementById(`${module}-table`).querySelector('tbody');
+            tableBody.innerHTML = '';
+
+            try {
+                const response = await fetchWithAuth(`${module}/`, { method: 'GET' }); // Fetch records with auth
+                const data = await response.json();
+
+                data.forEach(record => {
+                    let row = '';
+
+                    switch (module) {
+                        case 'customer':
+                            row = `
+                        <tr>
+                            <td>${record.id}</td>
+                            <td>${record.name}</td>
+                            <td>${record.email}</td>
+                            <td>${record.phone || 'N/A'}</td>
+                            <td>${record.address || 'N/A'}</td>
+                            <td>${record.age || 'N/A'}</td>
+                            <td>
+                                <button class="action-btn" onclick="editRecord('${module}', ${record.id})">Edit</button>
+                                <button class="delete-btn" onclick="deleteRecord('${module}', ${record.id})">Delete</button>
+                            </td>
+                        </tr>`;
+                            break;
+                        case 'product':
+                            row = `
+                        <tr>
+                            <td>${record.id}</td>
+                            <td>${record.name}</td>
+                            <td>${record.price}</td>
+                            <td>${record.stock}</td>
+                            <td>${record.description}</td>
+                            <td>
+                                <button class="action-btn" onclick="editRecord('${module}', ${record.id})">Edit</button>
+                                <button class="delete-btn" onclick="deleteRecord('${module}', ${record.id})">Delete</button>
+                            </td>
+                        </tr>`;
+                            break;
+                        case 'employee':
+                            row = `
+                        <tr>
+                            <td>${record.id}</td>
+                            <td>${record.name}</td>
+                            <td>${record.position}</td>
+                            <td>${record.email}</td>
+                            <td>${record.address}</td>
+                            <td>${record.phone}</td>
+                            
+                            <td>
+                                <button class="action-btn" onclick="editRecord('${module}', ${record.id})">Edit</button>
+                                <button class="delete-btn" onclick="deleteRecord('${module}', ${record.id})">Delete</button>
+                            </td>
+                        </tr>`;
+                            break;
+                        case 'taskboard':
+                            console.log(record);
+
+                            row = `
+                        <tr>
+                            <td>${record.id}</td>
+                            <td>${record.title}</td>
+                            <td>${record.status === 'completed' ? 'Đã hoàn thành' : 'Chưa hoàn thành'}</td>
+                            <td>${record.assigned_to}</td>
+                            <td>
+                                <button class="action-btn" onclick="editRecord('${module}', ${record.id})">Edit</button>
+                                <button class="delete-btn" onclick="deleteRecord('${module}', ${record.id})">Delete</button>
+                            </td>
+                        </tr>`;
+                            break;
+                        default:
+                            row = `
+                        <tr>
+                            <td colspan="7">No data available</td>
+                        </tr>`;
+                            break;
+                    }
+
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error("Error loading records:", error);
+            }
+        }
+
+        async function createRecord(module) {
+            const form = document.getElementById(`${module}-form`);
+            const inputs = form.querySelectorAll('input');  // Bao gồm cả input và select elements
+            const data = {};
+
+            inputs.forEach(input => {
+                data[input.id.replace(`${module}-`, '')] = input.value;
+            });
+
+            // Lấy token từ localStorage
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                alert('You are not logged in');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/${module}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,  // Bao gồm token trong header Authorization
+                    },
+                    body: JSON.stringify(data),
+                });
+                console.log(response);
+
+                if (response.ok) {
+                    loadRecords(module);  // Tải lại danh sách sau khi thêm
+                    form.reset();  // Reset form sau khi submit
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.detail || 'Failed to create record'}`);
+                    console.error("Error creating record:", errorData);
+                }
+            }
+            catch (error) {
+                console.error("Error:", error);
+                alert('An error occurred while creating the record.');
+            }
+        }
+
+
+
+        async function editRecord(module, id) {
+            alert(`Edit functionality for ${module} ID ${id} is not yet implemented.`);
+        }
+
+        async function deleteRecord(module, id) {
+            try {
+                const response = await fetch(`${apiBaseUrl}/${module}/${id}/`, { method: 'DELETE' });
+                if (response.ok) {
+                    loadRecords(module);
+                } else {
+                    console.error("Error deleting record:", await response.json());
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+        async function loadEmployees() {
+            const employeeSelect = document.getElementById('task-assigned-to');
+            employeeSelect.innerHTML = '';  // Clear existing options
+
+            try {
+                const response = await fetchWithAuth('employee/', { method: 'GET' });
+                const employees = await response.json();
+
+                employees.forEach(employee => {
+                    const option = document.createElement('option');
+                    option.value = employee.id;
+                    option.textContent = employee.name;
+                    employeeSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Error loading employees:", error);
+            }
+        }
+    </script>
+</body>
+
+</html>

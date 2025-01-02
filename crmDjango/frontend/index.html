@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login and Register</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      width: 300px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .container h2 {
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .btn:hover {
+      background: #0056b3;
+    }
+
+    .message {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Login</h2>
+    <div id="login-form">
+      <div class="form-group">
+        <label for="login-username">Username</label>
+        <input type="text" id="login-username" placeholder="Enter username">
+      </div>
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="Enter password">
+      </div>
+      <button class="btn" onclick="loginUser()">Login</button>
+    </div>
+    <div class="message" id="login-message"></div>
+
+    <h2>Register</h2>
+    <div id="register-form">
+      <div class="form-group">
+        <label for="register-username">Username</label>
+        <input type="text" id="register-username" placeholder="Enter username">
+      </div>
+      <div class="form-group">
+        <label for="register-password">Password</label>
+        <input type="password" id="register-password" placeholder="Enter password">
+      </div>
+      <button class="btn" onclick="registerUser()">Register</button>
+    </div>
+    <div class="message" id="register-message"></div>
+  </div>
+
+  <script>
+    const apiBaseUrl = "http://127.0.0.1:8000/api";
+    // Fetch function with authentication
+    async function fetchWithAuth(endpoint, options = {}) {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        alert('No token found. Please log in first.');
+        window.location.href = '/login';  // Redirect to login page
+      }
+
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        ...options.headers,
+      };
+
+      const response = await fetch(`${apiBaseUrl}/${endpoint}`, {
+        ...options,
+        headers,
+      });
+
+      if (response.status === 401) {
+        alert('Session expired. Please log in again.');
+        localStorage.removeItem('accessToken');
+        window.location.reload();
+      }
+
+      return response;
+    }
+
+    // Login function
+    async function loginUser() {
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+      const message = document.getElementById('login-message');
+      message.textContent = '';
+
+      try {
+        const response = await fetch(`${apiBaseUrl}/token/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('accessToken', data.access);
+          localStorage.setItem('refreshToken', data.refresh);
+
+          message.textContent = 'Login successful!';
+          message.style.color = 'green';
+          window.location.href = '/manage'; 
+        } else {
+          message.textContent = data.detail || 'Login failed!';
+          message.style.color = 'red';
+        }
+      } catch (error) {
+        message.textContent = 'An error occurred.';
+        message.style.color = 'red';
+      }
+    }
+
+    // Register function
+    async function registerUser() {
+      const username = document.getElementById('register-username').value;
+      const password = document.getElementById('register-password').value;
+      const message = document.getElementById('register-message');
+      message.textContent = '';
+
+      try {
+        const response = await fetch(`${apiBaseUrl}/register/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          message.textContent = 'Registration successful!';
+          message.style.color = 'green';
+        } else {
+          message.textContent = data.detail || 'Registration failed!';
+          message.style.color = 'red';
+        }
+      } catch (error) {
+        message.textContent = 'An error occurred.';
+        message.style.color = 'red';
+      }
+    }
+
+
+  </script>
+
+</body>
+
+</html>

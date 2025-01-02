@@ -3,7 +3,7 @@ from .views import CustomerViewSet
 
 # Tạo router và đăng ký viewset
 router = DefaultRouter()
-router.register(r'customers', CustomerViewSet, basename='customer')
+router.register(r'customer', CustomerViewSet, basename='customer')
 
 # Bao gồm router URLs
 urlpatterns = router.urls
